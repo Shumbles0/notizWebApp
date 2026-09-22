@@ -3,15 +3,44 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="stylesheet" href="/css/stylesheet">
+    <link rel="stylesheet" href="css/stylesheet.css" />
     <title>Async</title>
   </head>
   <body>
+    <h1>Notiz dingsbunms</h1>
 
-    <h1>title</h1>
+    <form>
+  <input type="text" name="titel" placeholder="Titel">
+
+  <textarea name="inhalt" placeholder="Inhalt"></textarea>
+
+  <button type="submit">Submit</button>
+</form>
+
+<ul id="entries"></ul>
+
     <script>
-      console.warn("nugget");
+
+      const BASE_URL="http://notes.iso.lmeier.ch";
+      const NOTES_ENDPOINT="/api/collections/notes/records";
+      async function loadNotes() {
+        const check = await fetch(BASE_URL + NOTES_ENDPOINT);
+        if(check.ok) {
+          console.log("check ist ok");
+          const data = await check.json();
+          console.log(data);
+        }
+        else {
+          console.log(check.status);
+        }
+      }
       
+      async function renderNotes(notes) {
+        
+      }
+
+
+
     </script>
   </body>
 </html>
