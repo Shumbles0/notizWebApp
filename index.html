@@ -21,7 +21,7 @@
 <ul id="entries"></ul>
 
     <script>
-
+//title?trim() ist das gleiche wie title == null ? undefined : title.trim;
       let list = document.getElementById("entries");
       const form = document.querySelector("form");
 
@@ -55,7 +55,7 @@
 
       async function createNote(titel, inhalt) {
         try {
-        if (titel !== "" && inhalt !== "") {
+        if (titel?.trim() && inhalt?.trim()) {
           const pro = await fetch(BASE_URL + NOTES_ENDPOINT, {
             method: "POST", 
             headers: {
@@ -69,7 +69,7 @@
           if (pro.ok) {
             console.log("wurde gut geschickt")
             const notizen = await loadNotes();
-            if (notizen !== "") {
+            if (notizen != null) {
               renderNotes(notizen.items);
             }
           }
@@ -169,7 +169,7 @@
         await deletnote(button.dataset.id)
 
         const notizen = await loadNotes();
-        if (notizen !== "") {
+        if (notizen !== null) {
           renderNotes(notizen.items);
         }
         
