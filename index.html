@@ -7,7 +7,8 @@
     <title>Async</title>
   </head>
   <body>
-    <h1>Notiz dingsbunms</h1>
+    <h1>Notizen webapp</h1>
+
 
     <form>
   <input type="text" name="titel" placeholder="Titel">
@@ -21,23 +22,159 @@
 
     <script>
 
+      let list = document.getElementById("entries");
+      const form = document.querySelector("form");
+
+     
       const BASE_URL="http://notes.iso.lmeier.ch";
       const NOTES_ENDPOINT="/api/collections/notes/records";
+
+
+
       async function loadNotes() {
+        try {
         const check = await fetch(BASE_URL + NOTES_ENDPOINT);
         if(check.ok) {
           console.log("check ist ok");
           const data = await check.json();
           console.log(data);
+          return data;
         }
         else {
           console.log(check.status);
+          return null;
         }
+      }
+      catch(e) {
+        console.log(e)
+        alert("etwas lief schief");
+        return null;
+      }
+        
+      }
+
+      async function createNote(titel, inhalt) {
+        try {
+        if (titel !== "" && inhalt !== "") {
+          const pro = await fetch(BASE_URL + NOTES_ENDPOINT, {
+            method: "POST", 
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              title: titel,
+              content: inhalt
+            })
+          });
+          if (pro.ok) {
+            console.log("wurde gut geschickt")
+            const notizen = await loadNotes();
+            if (notizen !== "") {
+              renderNotes(notizen.items);
+            }
+          }
+            else{
+            console.log(pro.status)
+          }
+        }
+      }
+      catch(e){
+       console.log(e)
+        alert("etwas lief schief");
+        return null;
+      }
+        
+
       }
       
       async function renderNotes(notes) {
-        
+        list.innerHTML = "";
+
+        for (const note of notes) {
+        const li = document.createElement("li");  
+
+        const titel = document.createElement("h2");
+        titel.textContent = note.title;
+
+        const inhalt = document.createElement("p");
+        inhalt.textContent = note.content;
+
+         const deleteButton = document.createElement("button");
+        deleteButton.textContent = "Delete";
+        deleteButton.classList.add("delete-button");
+
+        deleteButton.dataset.id = note.id;
+
+        li.appendChild(titel);
+        li.appendChild(inhalt);
+        li.appendChild(deleteButton);
+
+        list.appendChild(li);
+
+        }
       }
+
+      async function deletnote(id) {
+        try{
+        const del = await fetch(BASE_URL + NOTES_ENDPOINT + "/" + id, {
+          method: "DELETE"
+        }) ;
+
+        if(del.ok) {
+          console.log(id + "         wurde gelöscht");
+        }
+        else{
+          console.log(del.status);       
+         }
+        }
+        catch(e){
+          console.log(e)
+        alert("etwas lief schief");
+        return null;
+      }
+      }
+
+      async function start() {
+        const notizen = await loadNotes();
+
+        if (notizen != null) {
+          renderNotes(notizen.items);
+        }
+      }
+
+// ///////////////////////////////////////////ANFANG///////////////////////////////////////////////////
+      start();
+
+
+       form.addEventListener("submit", (event) => {
+          event.preventDefault();
+
+         const titel = form.elements["titel"].value;
+         const inhalt = form.elements["inhalt"].value;
+
+         createNote(titel, inhalt);
+
+         form.reset();
+      });
+
+      list.addEventListener("click", async (event) => {
+        const button = event.target.closest(".delete-button");
+
+          if (!button) {
+            return;
+          }
+
+        const id = button.dataset.id;
+
+        await deletnote(button.dataset.id)
+
+        const notizen = await loadNotes();
+        if (notizen !== "") {
+          renderNotes(notizen.items);
+        }
+        
+      });
+
 
 
 
